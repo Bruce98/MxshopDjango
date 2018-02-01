@@ -2,7 +2,7 @@
 __author__ = 'bobby'
 
 
-from .serializers import GoodsSerializer
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import mixins
@@ -13,15 +13,16 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
 
-from .models import Goods
+from .models import Goods,GoodsCategory
+from .serializers import GoodsSerializer,CategorySerializer 
 
 from .filters import GoodsFilter
 # Create your views here.
 
 class LargeResultsSetPagination(PageNumberPagination):
-    page_size = 10
+    page_size = 12
     page_size_query_param = 'page_size'
-    page_query_param = "p"
+    page_query_param = "page"
     max_page_size = 100
 
 class GoodsListViewsets(mixins.ListModelMixin,viewsets.GenericViewSet):
@@ -33,9 +34,19 @@ class GoodsListViewsets(mixins.ListModelMixin,viewsets.GenericViewSet):
     pagination_class = LargeResultsSetPagination
     filter_backends = (DjangoFilterBackend,filters.SearchFilter,filters.OrderingFilter)
     filter_class = GoodsFilter
-    search_fields = ('=name', 'goods_brief','goods_desc')
-    Ordering_filter = ('sold_num','add_time')
+    search_fields = ('name', 'goods_brief','goods_desc')
+    Ordering_filter = ('sold_num','add_time','shop_price')
     
+
+class CategoryViewsets(mixins.ListModelMixin,mixins.RetrieveModelMixin,viewsets.GenericViewSet):
+    """
+    List:
+        商品分类列表
+    """
+
+    queryset = GoodsCategory.objects.filter(category_type=1)
+    serializer_class = CategorySerializer
+
 
 
 # class GoodsListView(generics.ListAPIView):
